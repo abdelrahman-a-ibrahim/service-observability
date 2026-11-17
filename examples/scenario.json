@@ -1,0 +1,7 @@
+{
+  "window": "synthetic-100-requests",
+  "eligible": 100,
+  "good": 97,
+  "objective": 0.99,
+  "note": "illustrative input, not a measured result"
+}
