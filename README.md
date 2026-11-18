@@ -1,52 +1,28 @@
-# Observability & Reliability Lab
+# Service Observability
 
-**Signals that explain user-visible failure**
+Service telemetry, SLO dashboards and actionable alerting using Prometheus, Grafana and trace correlation.
 
-> Status: foundation only / implementation not started. Independent educational project by Abdelrahman Ahmed. This repository is not a reconstruction of employer systems, a production deployment or proof of completed work.
+**Status: In development** · Personal project by Abdelrahman Ahmed
 
-## The engineering challenge
+## Overview
 
-Instrument WorkshopHub booking and event processing. Build dashboards and alerts around user journeys, not only infrastructure health. Prometheus/Grafana are the local path; Dynatrace is an optional adapter requiring an account.
+An observability project connecting infrastructure signals to user-visible service outcomes. The baseline targets Prometheus and Grafana with correlated logs and traces; a Dynatrace integration is an optional extension with separate account requirements.
 
-This is a capstone for an experienced engineer. The goal is to defend tradeoffs, investigate failure and produce reproducible evidence, not just get a happy-path demo running.
+## Current state
 
-**Technical focus:** Prometheus · Grafana · Dynatrace · OpenTelemetry · SLIs/SLOs · Incidents.
+The repository currently contains the system design, delivery requirements, a synthetic input fixture and initial Python interfaces. Runtime behavior, service integrations and deployment are planned. Interface methods raise `NotImplementedError`; there is no running application or published runtime benchmark yet.
 
-## What exists in this first commit
+## Planned capabilities
 
-- A project-specific architecture brief and decision questions.
-- Five implementation milestones with explicit review gates.
-- Failure experiments and acceptance criteria.
-- Typed Python interface scaffolds. Methods deliberately raise `NotImplementedError`.
-- One synthetic scenario fixture; it is an input, not a successful output or benchmark.
-- Evidence and journal templates, an issue template, and syntax/JSON foundation checks.
+- Service-level indicators for booking success and event freshness.
+- Correlated metrics, structured logs and distributed traces.
+- Provisioned Prometheus/Grafana dashboards and actionable alerts.
+- Telemetry cardinality controls and missing-data detection.
+- Incident timelines and an optional Dynatrace integration.
 
-## What you will build
+Detailed scope is tracked in the [delivery roadmap](docs/roadmap.md) and [requirements](docs/requirements.md).
 
-1. Define booking success and event freshness SLIs with denominators, exclusions, targets and measurement windows. Label targets as hypotheses until measured.
-2. Instrument latency histograms, counters, logs and trace propagation. Set cardinality and payload-redaction budgets.
-3. Build versioned Prometheus/Grafana dashboards for user outcomes and dependencies; provision them reproducibly.
-4. Implement actionable alerts and test both detection and false positives. Compare multi-window burn-rate alerts with simple static thresholds.
-5. Run an incident exercise, correlate signals, write a timeline and measure detection/recovery. Optionally reproduce equivalent views in Dynatrace without requiring it for the baseline.
-
-## Start here
-
-1. Read [the architecture brief](docs/architecture.md) and record the first decision in [ADR 0001](docs/adr/0001-system-boundaries.md).
-2. Inspect [the synthetic scenario](examples/scenario.json) and [the interface boundary](src/observability_and_reliability_lab/interfaces.py).
-3. Run the foundation checks from the repository root:
-
-   ```sh
-   python3 tools/check_foundation.py
-   ```
-
-   Python 3.9+ is sufficient for these standard-library checks. They parse Python and JSON; they do **not** validate runtime behavior, deployment safety, protocol compliance or completion.
-4. Create a feature branch, implement milestone 1 and add behavior tests before adapters.
-5. Follow [the milestone backlog](docs/milestones.md). Select and pin implementation dependencies when you introduce them; none are installed by this scaffold.
-6. Complete [the failure lab](docs/failure-lab.md), gather [evidence](docs/evidence/README.md) and review [acceptance criteria](docs/acceptance.md).
-
-There is deliberately no `deploy`, `apply`, paid API call, installed cloud SDK or working runtime in this initial commit.
-
-## Architecture at a glance
+## Architecture
 
 ```text
 API / workers -> metrics + traces + logs -> dashboards
@@ -54,72 +30,69 @@ API / workers -> metrics + traces + logs -> dashboards
                      SLI evaluation -> alerts -> incident runbook
 ```
 
-This is a proposed lab architecture. [The design brief](docs/architecture.md) identifies decisions still to make.
+This is the proposed component design. See [architecture](docs/architecture.md) for boundaries and [architecture decisions](docs/adr/0001-system-boundaries.md) for the choices still to resolve.
 
-## Learning prerequisites
+## Technology direction
 
-- `application-engineering-lab` (a suggested learning prerequisite; no runtime dependency is wired in)
-- `aws-live-events-lab` (a suggested learning prerequisite; no runtime dependency is wired in)
+Prometheus · Grafana · Dynatrace · OpenTelemetry · SLIs/SLOs · Incidents.
 
-Repositories are separate and can evolve independently. If you connect them later, exchange versioned fixtures or contracts; do not rely on sibling-relative imports. You can implement a standalone synthetic adapter first.
+These technologies describe the intended implementation. Dependencies and compatible versions will be pinned when introduced. Optional services are not required by the current source checks.
 
-## What makes this substantial
+## Working with the source
 
-- Event versus time-based SLI
-- Histogram buckets and cardinality budget
-- Metric alert versus trace-based investigation
+```sh
+git clone https://github.com/abdelrahman-a-ibrahim/service-observability.git
+cd service-observability
+python3 tools/check_project.py
+```
 
-You must explain what happens on retries, partial failure, concurrent operations and recovery. Record what your test environment cannot prove. No result is accepted simply because a dashboard is green.
+Python 3.9+ is sufficient for the current standard-library source check. It parses Python and JSON and checks required project files. It does **not** run an application, validate deployment behavior or establish feature completion.
 
-## Definition of done
+The initial application boundary is in [`src/service_observability/interfaces.py`](src/service_observability/interfaces.py). [`examples/scenario.json`](examples/scenario.json) provides a synthetic development input. Installation and runtime commands will be added with the first executable release.
+
+## Quality and reliability
 
 - Each alert links a user impact, owner and runbook.
 - SLI results can be recomputed from saved synthetic samples.
 - Dashboards distinguish missing data from zero errors.
 - The incident report includes timestamps and evidence, not invented improvements.
 
-Also supply installation/reproduction instructions, dependency versions, meaningful behavior tests, cleanup instructions, an architecture decision log and evidence from a repeatable demonstration. A checklist or syntax check alone does not satisfy completion.
+These are acceptance targets. Failure scenarios are specified in [reliability verification](docs/reliability.md); [results](docs/verification/README.md) will be recorded as implementation progresses. Correctness and performance claims must reference an actual environment, workload and commit.
 
-## Advanced extensions
+## Development roadmap
 
-- Exemplars and trace-linked dashboards
-- Telemetry-pipeline resource budgeting
-- Synthetic user journeys
-- Compare measurement windows with controlled traffic
+- [ ] Contracts and system boundaries
+- [ ] Core implementation and behavior tests
+- [ ] External adapters and scoped access
+- [ ] Failure recovery and operational visibility
+- [ ] Reproducible deployment and release validation
 
-Extensions follow a working baseline; they are not requirements for the first milestone.
+See [delivery stages and future scope](docs/roadmap.md). For deployment prerequisites and resource lifecycle, see [operations](docs/operations.md).
 
-## Boundaries and costs
+## Repository structure
 
-Use fictional services, synthetic inputs and a disposable sandbox. Do not copy employer repositories, runbooks, tickets, customer data, credentials or internal architecture. Real cloud/provider adapters are future work and may incur costs; [the operations plan](docs/operations.md) must identify account, region, budget, resource inventory and teardown before deployment. Budget alerts notify; they do not constitute a hard spending cap.
+```text
+src/service_observability/       Initial application interfaces
+examples/                  Synthetic development inputs
+tests/                     Behavior verification plan
+docs/architecture.md       Component design and boundaries
+docs/requirements.md       Functional and quality requirements
+docs/roadmap.md            Delivery stages and future scope
+docs/reliability.md        Failure and recovery scenarios
+docs/operations.md         Runtime and deployment plan
+docs/verification/         Results as implementation progresses
+tools/check_project.py     Source integrity check
+```
 
-## Publishable evidence, when earned
+## Development
 
-A completed lab may support a portfolio case study labeled **independent project**. Share your original code, sanitized diagrams, measured results and a failure/recovery write-up. Employer experience and personal lab evidence remain separate. Never copy illustrative fixture values into a results claim.
+Use focused feature branches, add behavior tests with implementation changes and update the relevant architecture decision when guarantees change. Read [CONTRIBUTING.md](CONTRIBUTING.md).
 
-## Primary references
+This is an independent personal project. Examples use synthetic data. See [NOTICE.md](NOTICE.md) for licensing status.
+
+## References
 
 - https://prometheus.io/docs/introduction/overview/
 - https://grafana.com/docs/grafana/latest/
 - https://opentelemetry.io/docs/
 - https://docs.dynatrace.com/docs
-
-Read current official documentation when selecting SDKs, images, tool versions and integrations. The scaffold intentionally does not guess compatible version combinations.
-
-## Repository map
-
-- `src/observability_and_reliability_lab/interfaces.py`
-- `examples/scenario.json`
-- `docs/architecture.md`
-- `docs/milestones.md`
-- `docs/failure-lab.md`
-- `docs/acceptance.md`
-- `docs/learning-journal.md`
-- `docs/evidence/README.md`
-- `docs/operations.md` — local/cloud boundaries and teardown plan.
-- `docs/adr/` — decisions and alternatives.
-- `tools/check_foundation.py` — syntax and fixture integrity only.
-
-## Working agreement
-
-Keep commits focused: `docs`, `feat`, `test`, `fix`, `ops`. Work on a feature branch and merge only after the milestone review. Consult [CONTRIBUTING.md](CONTRIBUTING.md). No open-source license has been chosen yet; see [NOTICE.md](NOTICE.md).
